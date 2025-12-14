@@ -12,19 +12,22 @@ func main() {
 		return
 	}
 
-	command := os.Args[1]
-
-	switch command {
+	switch os.Args[1] {
 	case "analyze":
 		path := "."
-		if len(os.Args) > 2 {
+		if (len(os.Args) > 2) {
 			path = os.Args[2]
 		}
 
-		fmt.Println(analyzer.Analyze(path))
+		g := analyzer.Analyze(path)
+
+		fmt.Printf(
+			"graph built: %d nodes, %d edges\n",
+			len(g.Nodes),
+			len(g.Edges),
+		)
+
 	default:
-		fmt.Println("Uknown command:",command)
+		fmt.Println("uknown command:", os.Args[1])
 	}
 }
-
-

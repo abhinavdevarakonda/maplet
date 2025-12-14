@@ -1,22 +1,16 @@
 package analyzer
 
 import (
-	"fmt"
 	"path/filepath"
 	"os"
+
+	"github.com/abhinavdevarakonda/maplet/internal/graph"
 )
 
-func ListFiles(files []string) {
-	for i := range files {
-		fmt.Println(files[i])
-	}
-}
+func Analyze(root string) *graph.Graph {
+	g := graph.New()
 
-func Analyze(path string) string {
-	files := []string{}
-
-	filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
-		count := 0
+	filepath.Walk(root, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -26,17 +20,33 @@ func Analyze(path string) string {
 			if name == ".git" || name == "node_modules" {
 				return filepath.SkipDir
 			}
+
+			g.AddNode(&graph.Node{
+				ID: p,
+				Type: graph.DirectoryNode,
+				Name: info.Name(),
+				Path: p,
+			})
+
 			return nil
 		}
 
-		if filepath.Ext(info.Name()) == ".go" {
-			count++
-			files = append(files,info.Name())
+		if filepath.Ext(info.Name()) != ".go" {
+			return nil
 		}
+
+		g.AddNode(&graph.Node{
+			ID:		p,
+			Type:	graph.FileNode,
+			Name:	info.Name(),
+			Path:	p,
+		})
+
+		parent := filepath.Dir(p)
+		g.AddEdge(parent, p, graph.ContainsEdge)
 
 		return nil
 	})
 
-	ListFiles(files)
-	return fmt.Sprintf("Found %d files", len(files))
+	return g
 }
