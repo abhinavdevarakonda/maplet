@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Maplet</title>
+</head>
+<body>
+  <h1>Maplet Graph</h1>
+  <pre id="output">Loading...</pre>
+
+  <script>
+    fetch("/api/graph")
+      .then(res => res.json())
+      .then(graph => {
+        document.getElementById("output").textContent =
+          JSON.stringify(graph, null, 2);
+      })
+      .catch(err => {
+        document.getElementById("output").textContent =
+          "Error: " + err;
+      });
+  </script>
+</body>
+</html>
+

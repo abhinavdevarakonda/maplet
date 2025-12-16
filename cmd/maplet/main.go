@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"encoding/json"
+
 	"github.com/abhinavdevarakonda/maplet/internal/analyzer"
 	"github.com/abhinavdevarakonda/maplet/internal/export"
+	"github.com/abhinavdevarakonda/maplet/internal/server"
 )
 
 func main() {
@@ -42,6 +44,15 @@ func main() {
 			panic(err)
 		}
 		fmt.Println(string(data))
+
+	case "serve":
+		g := analyzer.Analyze(path)
+		eg := export.FromGraph(g)
+
+		srv := server.New(eg)
+		if err := srv.Start("localhost:6767"); err != nil  {
+			panic(err)
+		}
 
 	default:
 		fmt.Println("uknown command:", os.Args[1])
