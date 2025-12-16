@@ -28,6 +28,11 @@ func Analyze(root string) *graph.Graph {
 				Path: p,
 			})
 
+			if p != root {
+				parent := filepath.Dir(p)
+				g.AddEdge(parent, p, graph.ContainsEdge)
+			}
+
 			return nil
 		}
 

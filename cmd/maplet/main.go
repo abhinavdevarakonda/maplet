@@ -3,22 +3,28 @@ package main
 import (
 	"fmt"
 	"os"
+	"encoding/json"
 	"github.com/abhinavdevarakonda/maplet/internal/analyzer"
+	"github.com/abhinavdevarakonda/maplet/internal/export"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: maplet analyze <project-path>")
+		fmt.Println("Usage:")
+		fmt.Println("	maplet analyze <path>")
+		fmt.Println("	maplet export <path>")
 		return
 	}
 
-	switch os.Args[1] {
-	case "analyze":
-		path := "."
-		if (len(os.Args) > 2) {
-			path = os.Args[2]
-		}
+	command := os.Args[1]
 
+	path := "."
+	if len(os.Args) > 2 {
+		path = os.Args[2]
+	}
+
+	switch command {
+	case "analyze":
 		g := analyzer.Analyze(path)
 
 		fmt.Printf(
@@ -26,6 +32,16 @@ func main() {
 			len(g.Nodes),
 			len(g.Edges),
 		)
+
+	case "export":
+		g := analyzer.Analyze(path)
+		eg := export.FromGraph(g)
+
+		data, err := json.MarshalIndent(eg, "", " ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(string(data))
 
 	default:
 		fmt.Println("uknown command:", os.Args[1])
