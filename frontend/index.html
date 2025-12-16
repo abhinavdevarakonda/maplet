@@ -3,23 +3,96 @@
 <head>
   <meta charset="utf-8" />
   <title>Maplet</title>
+
+  <!-- Cytoscape CDN -->
+  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    #cy {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
 </head>
 <body>
-  <h1>Maplet Graph</h1>
-  <pre id="output">Loading...</pre>
+
+  <div id="cy"></div>
 
   <script>
     fetch("/api/graph")
       .then(res => res.json())
       .then(graph => {
-        document.getElementById("output").textContent =
-          JSON.stringify(graph, null, 2);
+
+        const elements = [];
+
+        // Nodes
+        for (const n of graph.nodes) {
+          elements.push({
+            data: {
+              id: n.id,
+              label: n.name,
+              type: n.type
+            }
+          });
+        }
+
+        // Edges
+        for (const e of graph.edges) {
+          elements.push({
+            data: {
+              source: e.from,
+              target: e.to,
+              type: e.type
+            }
+          });
+        }
+
+        cytoscape({
+          container: document.getElementById("cy"),
+
+          elements: elements,
+
+          style: [
+            {
+              selector: "node",
+              style: {
+                "label": "data(label)",
+                "font-size": 10,
+                "background-color": "#666",
+                "text-valign": "center",
+                "text-halign": "center",
+                "color": "#000"
+              }
+            },
+            {
+              selector: "edge",
+              style: {
+                "width": 1,
+                "line-color": "#999",
+                "target-arrow-color": "#999",
+                "target-arrow-shape": "triangle"
+              }
+            }
+          ],
+
+          layout: {
+            name: "breadthfirst",
+            directed: true,
+            padding: 20
+          }
+        });
+
       })
       .catch(err => {
-        document.getElementById("output").textContent =
-          "Error: " + err;
+        console.error("Failed to load graph:", err);
       });
   </script>
+
 </body>
 </html>
 
